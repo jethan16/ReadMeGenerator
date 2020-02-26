@@ -1,5 +1,4 @@
 const inquirer = require("inquirer");
-const axios = require("axios");
 const generateMarkdown = require("./utils/generateMarkdown")
 const api = require('./utils/api')
 const fs = require("fs");
@@ -10,7 +9,7 @@ const fs = require("fs");
 const questions = [
     {
         type: "input",
-        name: "name",
+        name: "author",
         message: "What is your name?",
     },
     {
@@ -38,13 +37,13 @@ const questions = [
         type: "input",
         name: "installation",
         message: "What method is required for installation?",
-        default: "npm i" 
+        default: "npm i"
     },
     {
         type: "input",
         name: "tests",
         message: "What method is required for testing?",
-        default: "npm test" 
+        default: "npm test"
     },
     {
         type: "input",
@@ -55,22 +54,35 @@ const questions = [
         type: "input",
         name: "contributing",
         message: "What does the user need to know about contributing to this repo?",
-    }
+    },
+    {
+        type: "input",
+        name: "contributers",
+        message: "Who else is contributing code to this repo?",
+    },
 ];
 
 // function writeToFile(fileName, data) {
 // }
 
 function init() {
-    inquirer.prompt(questions).then(function results(answers) {
-        // console.log(answers)
-        fs.writeFile("readme.md", generateMarkdown({ ...answers}), (err) => {
-            if (err) {
-                throw err
-            }
-            console.log("success");
+    inquirer.prompt(questions).then(results => {
+
+       api.getUser(results.github).then(({ data }) => {
+
+           console.log(data);
+           
+           fs.writeFile("readMeGen.md", generateMarkdown({ ...results, ...data}), (err) => {
+               if (err) {
+                   throw err
+                }
+                console.log("success");
+            })
         })
-    })
+    });
 }
 
 init();
+
+
+// https://api.github.com/users/
